@@ -4,7 +4,8 @@ import socket
 
 s = socket.socket()
 host = socket.gethostname()
-port = 12345
+port = 59426
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((host, port))
 
 s.listen(5)
