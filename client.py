@@ -1,30 +1,44 @@
 #!/usr/bin/env python
 
 import socket
+import re
+import sys
 
 def main():
-	# Create socket and its parameters
+	# Create socket object and its parameters (address and port)
 	s = socket.socket()
 	host = socket.gethostname()
 	port = 59426
 
-	# Connect to the server
+	# Connect to the socket
 	s.connect((host, port))
 
 	# Msg to start winning number generation
 	s.send("start generating winning number")
-
-	# Create a list for the digits of the winning number
-	winning_num = []
 	
-	#print(s.recv(1024))
+	# Checks that random number has been generated
+	msg = s.recv(1024)
+	if msg == "successfully generated winning number":
+		pass
+	else:
+		sys.exit("Network error. Exiting program.")
 
+	print "Welcome to MASTERMIND!"
+		
+	# Infinite loop to keep client running
 	while True:
-		if s.recv(1024) == "ready to send digit":
-			s.send("ready to receive digit")
-			winning_num.append(int(s.recv(1024)))
-			print(''.join(str(winning_num)))
-			s.send("received digit")	
+		# Receives keyboard input from user
+		input = raw_input("Please guess a 4 digit number: ")
+		if not re.match(r'\d{4}\b', input):
+			print "Incorrect input. Please try again."
+		else:
+			s.send("sending guessed number")
+			msg = s.recv(1024)
+			if msg == "receiving guessed number":
+				# Sends guessed number to server
+				s.send(input)
+			else:
+				sys.exit("Network error. Exiting program.")			
 		
 	# Close the connection
 	s.close()
