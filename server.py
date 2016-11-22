@@ -36,7 +36,7 @@ def clientthread(c):
 	# Create lists for the digits of the winning number and guessed number
 	winning_num = []
 	guessed_num = []
-
+	countdown = 10
 	# Infinite loop so that function doesn't terminate and thread doesn't end
 	while True:
 		msg = c.recv(1024) # Wait until message is received then decide what to do
@@ -52,6 +52,26 @@ def clientthread(c):
 			# Receive the guessed number
 			guessed_num = [int(j) for j in c.recv(1024)]
 			print ''.join(str(guessed_num))
+
+			num_right, num_right_spot = 0, 0
+			for j in range(0, 4):
+				if winning_num[j] == guessed_num[j]:
+					num_right_spot += 1
+				if winning_num.count(guessed_num[j]):
+					num_right += 1
+			if num_right_spot == 4:
+				c.send("win")
+				return None
+			
+			countdown -= 1
+			if countdown == 0:
+				c.send("lose")
+				return None
+			c.send(str(num_right))
+			c.recv(1024)
+			c.send(str(num_right_spot))
+			c.recv(1024)
+			c.send(str(countdown))
 		elif msg == "quitting program":
 			print("quitting the program")
 			return None
