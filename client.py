@@ -24,23 +24,23 @@ def main():
 		sys.exit("Network error. Exiting program.")
 	guesses = 10
 	print "Welcome to MASTERMIND!"
-	print "You have ", guesses, "  guesses to win"
+	print "You have ", guesses, " guesses to win"
 		
 	# Infinite loop to keep client running
 	while True:
 		# Receives keyboard input from user
 		try:
-			input = raw_input("Please guess a 4 digit number.\nEnter 'quit' to quit the game\n")
+			input = raw_input("Please guess a 4 digit number with no repeating digits.\nEnter 'quit' to quit the game\n")
 		except KeyboardInterrupt:
 			print("\nThanks for playing!")
 			s.send('quitting program')
 			sys.exit()
 
-		if re.match(r'quit', input):
+		if re.match(r'quit$', input):
 			print("\nThanks for playing!")
 			s.send("quitting program")
 			sys.exit()
-		if not re.match(r'\d{4}\b', input):
+		if not re.match(r'\d{4}$', input):
 			print "Incorrect input. Please try again."
 			print "You have ", guesses, " guesses remaining\n"
 		else:
@@ -54,7 +54,9 @@ def main():
 					print('You win!!')
 					sys.exit()
 				elif str == "lose":
-					print("You lose!!")
+					print("\nYou lose!!")
+					s.send("ask for winning number")
+					print'The winning number was ', s.recv(1024)
 					sys.exit()
 				else:
 					print'You have ', str, ' correct numbers'
