@@ -22,36 +22,47 @@ def main():
 		pass
 	else:
 		sys.exit("Network error. Exiting program.")
+
+	# Set maximum number of guesses
 	guesses = 10
+
+	# Print introduction message and instructions
 	print "Welcome to MASTERMIND!"
-	print "You have ", guesses, " guesses to win"
+	print "The goal of the game is to guess the winning number, a 4 digit number with no repeating digits."
+	print "After every incorrect guess, the game will output the number of digits found in both the guessed and winning numbers, distinguishing between how many are in the correct versus incorrect spot."
+	print "If you pick the correct 4 digit number within the max allowed number of guesses then you win the game, otherwise you lose."
+	print "You have ", guesses, " guesses to win.\n"
 		
 	# Infinite loop to keep client running
 	while True:
 		# Receives keyboard input from user
 		try:
-			input = raw_input("Please guess a 4 digit number with no repeating digits.\nEnter 'quit' to quit the game\n")
+			input = raw_input("Please guess a 4 digit number.\nEnter 'quit' to quit the game.\n")
+		# Exit the game without exception if the user presses CTRL+C
 		except KeyboardInterrupt:
 			print("\nThanks for playing!")
 			s.send('quitting program')
 			sys.exit()
-
+		# Exit the game if the user types 'quit'
 		if re.match(r'quit$', input):
 			print("\nThanks for playing!")
 			s.send("quitting program")
 			sys.exit()
+		# Print an error message if user doesn't input a 4 digit number or 'quit'
 		if not re.match(r'\d{4}$', input):
-			print "Incorrect input. Please try again."
-			print "You have ", guesses, " guesses remaining\n"
+			print "\nIncorrect input. Please try again."
+			print "You have ", guesses, " guesses remaining.\n"
+		# Handle guessed number
 		else:
 			s.send("sending guessed number")
 			msg = s.recv(1024)
 			if msg == "receiving guessed number":
 				# Sends guessed number to server
 				s.send(input)
+				# Receive results of guess and print them
 				str = s.recv(1024)
 				if str == "win":
-					print('You win!!')
+					print('\nYou win!!')
 					sys.exit()
 				elif str == "lose":
 					print("\nYou lose!!")
@@ -59,12 +70,12 @@ def main():
 					print'The winning number was ', s.recv(1024)
 					sys.exit()
 				else:
-					print'You have ', str, ' correct numbers'
+					print'\nYou have ', str, ' correct digits.'
 					s.send("random")
-					print'You have ', s.recv(1024), ' numbers in the right spot'
+					print'You have ', s.recv(1024), ' digits in the right spot.'
 					s.send("random")
 					guesses = s.recv(1024)
-					print'You have ', guesses, ' guesses remaining\n'
+					print'You have ', guesses, ' guesses remaining.\n'
 			else:
 				sys.exit("Network error. Exiting program.")			
 		
